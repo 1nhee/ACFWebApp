@@ -14,6 +14,10 @@ db = pymysql.connect(host='acfwebapp.mysql.database.azure.com',
 def index():
   return render_template('image.html')
 
+@app.route('/signOut', methods=['GET', 'POST'])
+def signOut():
+  return render_template('signOut.html')
+
 @app.route('/home', methods=['GET', 'POST'])
 def home():
   error = None
