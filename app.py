@@ -3,6 +3,7 @@ import pymysql
 
 #Create Flask object instance
 app = Flask(__name__)
+app.secret_key = 'HelloAC4all!20Always1'
 
 db = pymysql.connect(host='acfwebapp.mysql.database.azure.com',
                                   user='acfwebapp@acfwebapp',
@@ -10,10 +11,19 @@ db = pymysql.connect(host='acfwebapp.mysql.database.azure.com',
                      ssl={'ca': 'BaltimoreCyberTrustRoot.crt.pem'})
 
 @app.route('/', methods=['GET', 'POST'])
+def index():
+  return render_template('image.html')
+
+@app.route('/home', methods=['GET', 'POST'])
 def home():
   error = None
-  id = session['signInId']
-  return render_template('home.html', error=error, name=id)
+  if 'signInId' in session:
+    signInId = session['signInId']
+    return 'Logged in as ' + signInId + '<br>' + \
+           "<b><a href = '/logout'>click here to log out</a></b>"
+
+  return "You are not logged in <br><a href = '/signIn'></b>" + \
+         "click here to sign in</b></a>"
 
 @app.route('/signIn', methods=['GET', 'POST'])
 def signIn():
@@ -25,7 +35,7 @@ def signIn():
 
     try:
       with db.cursor() as cursor:
-        sql = "SELECT id FROM userdb WHERE id = %s AND password = %s"
+        sql = "SELECT id FROM signin WHERE id = %s AND password = %s"
         value = (id, password)
         cursor.execute(sql, value)
         data = cursor.fetchall()
@@ -72,7 +82,9 @@ def register():
   return render_template('signUp.html', error=error)
 
 if __name__=="__main__":
-  app.run(debug=True)
+  if __name__ == '__main__':
+    app.debug = True
+    app.run()
   # If you want to access a specifiy address or port #
   # app.run(host="127.0.0.1", port="5000", debug=True)
 
